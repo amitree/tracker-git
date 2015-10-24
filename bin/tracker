@@ -10,7 +10,7 @@ require 'optparse'
 options = {}
 optparse = OptionParser.new do |opts|
   opts.banner = <<-USAGE
-Usage: #{$0} [options] TRACKER_PROJECT_ID TRACKER_TOKEN [GIT_BRANCH]
+Usage: #{$0} [options] TRACKER_TOKEN [GIT_BRANCH]
    or: #{$0} [options]
   USAGE
   opts.separator ""
@@ -31,7 +31,6 @@ line, e.g:
 
 or as an environment variable:
 
-  export TRACKER_PROJECT_ID=123456
   export TRACKER_TOKEN=abc123
   tracker
 
@@ -39,19 +38,19 @@ or as an environment variable:
 end
 optparse.parse!
 
-project_id, tracker_token, git_branch = \
-  if [2, 3].include? ARGV.size
+tracker_token, git_branch = \
+  if [1, 2].include? ARGV.size
     ARGV
   else
-    [ENV['TRACKER_PROJECT_ID'], ENV['TRACKER_TOKEN'], ENV['GIT_BRANCH']]
+    [ENV['TRACKER_TOKEN'], ENV['GIT_BRANCH']]
   end
 
-unless tracker_token && project_id
+unless tracker_token
   puts optparse
   exit(-1)
 end
 
-project = Tracker::Project.new(tracker_token, project_id)
+project = Tracker::Project.new(tracker_token)
 git = Tracker::Git.new
 deliverer = Tracker::Deliverer.new(project, git)
 deliverer.mark_as_delivered(options.merge({branch: git_branch}))

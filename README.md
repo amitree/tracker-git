@@ -32,7 +32,6 @@ the tracker id and access token as command line arguments, or with following
 environment variables set, and your finished stories will be updated to
 delivered.
 
-    export TRACKER_PROJECT_ID=123456
     export TRACKER_TOKEN=abc123
 
 Optionally you can specify a git branch to search for completed story IDs as

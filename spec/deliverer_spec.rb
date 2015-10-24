@@ -3,7 +3,6 @@ require 'spec_helper'
 describe Tracker::Deliverer do
 
   let(:tracker_token) { double }
-  let(:project_id) { double }
   let(:commited_story) { double(id: 1) }
   let(:uncommited_story) { double(id: 2) }
   let(:finished_stories) { [commited_story, uncommited_story] }

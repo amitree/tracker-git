@@ -3,18 +3,17 @@ require 'pivotal-tracker'
 module Tracker
   class Project
 
-    attr_reader :tracker_token, :project_id
+    attr_reader :tracker_token
 
-    def initialize(tracker_token, project_id)
+    def initialize(tracker_token)
       @tracker_token = tracker_token
-      @project_id = project_id
 
       PivotalTracker::Client.token = tracker_token
       PivotalTracker::Client.use_ssl = true
     end
 
     def finished
-      _project.stories.all(state: "finished", story_type: ['bug', 'feature'])
+      _projects.map{|project| project.stories.all(state: "finished", story_type: ['bug', 'feature'])}.flatten
     end
 
     def deliver(story)
@@ -22,8 +21,8 @@ module Tracker
     end
 
     private
-    def _project
-      @project ||= PivotalTracker::Project.find(project_id)
+    def _projects
+      @projects ||= PivotalTracker::Project.all
     end
   end
 end
