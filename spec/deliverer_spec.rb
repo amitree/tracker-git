@@ -3,8 +3,10 @@ require 'spec_helper'
 describe Tracker::Deliverer do
 
   let(:tracker_token) { double }
-  let(:commited_story) { double(id: 1) }
-  let(:uncommited_story) { double(id: 2) }
+  let(:commited_story) { double(id: 1, notes: commited_story_notes) }
+  let(:commited_story_notes) { double }
+  let(:uncommited_story) { double(id: 2, notes: uncommited_story_notes) }
+  let(:uncommited_story_notes) { double }
   let(:finished_stories) { [commited_story, uncommited_story] }
   let(:project) { double }
   let(:git) { double }
@@ -18,6 +20,8 @@ describe Tracker::Deliverer do
         git.should_receive(:contains?).with(2, {}) { false }
         project.should_receive(:deliver).with(commited_story)
         project.should_not_receive(:deliver).with(uncommited_story)
+        commited_story_notes.should_not_receive(:create)
+        uncommited_story_notes.should_not_receive(:create)
 
         deliverer.mark_as_delivered
       end
@@ -46,6 +50,18 @@ describe Tracker::Deliverer do
         deliverer.mark_as_delivered(range: 'df65686e8c0c...5138d6290a80')
       end
     end
-  end
 
+    context 'with a comment to add' do
+      it('should add the comment') do
+        project.should_receive(:finished) { finished_stories }
+        git.should_receive(:contains?).with(1, {}) { true }
+        git.should_receive(:contains?).with(2, {}) { false }
+        project.should_receive(:deliver).with(commited_story)
+        commited_story_notes.should_receive(:create).with(text: "We like potatoes too")
+        uncommited_story_notes.should_not_receive(:create)
+
+        deliverer.mark_as_delivered(comment: 'We like potatoes too')
+      end
+    end
+  end
 end

@@ -22,6 +22,9 @@ Usage: #{$0} [options] TRACKER_TOKEN [GIT_BRANCH]
   opts.on("-r", "--range GIT_RANGE", "Specify the git range to use") do |v|
     options[:range] = v
   end
+  opts.on("-m", "--message COMMENT", "Add a comment to each delivered story") do |comment|
+    options[:comment] = comment
+  end
 
   opts.separator ""
   opts.separator <<-USAGE
