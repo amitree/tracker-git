@@ -16,6 +16,10 @@ module Tracker
       _projects.map{|project| project.stories.all(state: "finished", story_type: ['bug', 'feature'])}.flatten
     end
 
+    def finished_and_delivered
+      _projects.map{|project| project.stories.all(state: ["finished","delivered"], story_type: ['bug', 'feature'])}.flatten
+    end
+
     def deliver(story)
       story.update(current_state: "delivered")
     end

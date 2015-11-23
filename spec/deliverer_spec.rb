@@ -3,14 +3,15 @@ require 'spec_helper'
 describe Tracker::Deliverer do
 
   let(:tracker_token) { double }
-  let(:commited_story) { double(id: 1, notes: commited_story_notes) }
+  let(:commited_story) { double(id: 1, notes: commited_story_notes, current_state: current_state) }
   let(:commited_story_notes) { double }
-  let(:uncommited_story) { double(id: 2, notes: uncommited_story_notes) }
+  let(:uncommited_story) { double(id: 2, notes: uncommited_story_notes, current_state: 'finished') }
   let(:uncommited_story_notes) { double }
   let(:finished_stories) { [commited_story, uncommited_story] }
   let(:project) { double }
   let(:git) { double }
   let(:deliverer) { Tracker::Deliverer.new(project, git) }
+  let(:current_state) { 'finished' }
 
   describe '#mark_as_delivered' do
     context 'when called without argument' do
@@ -53,7 +54,7 @@ describe Tracker::Deliverer do
 
     context 'with a comment to add' do
       it('should add the comment') do
-        project.should_receive(:finished) { finished_stories }
+        project.should_receive(:finished_and_delivered) { finished_stories }
         git.should_receive(:contains?).with(1, {}) { true }
         git.should_receive(:contains?).with(2, {}) { false }
         project.should_receive(:deliver).with(commited_story)
@@ -61,6 +62,21 @@ describe Tracker::Deliverer do
         uncommited_story_notes.should_not_receive(:create)
 
         deliverer.mark_as_delivered(comment: 'We like potatoes too')
+      end
+
+      context 'story is already delivered' do
+        let(:current_state) { 'delivered' }
+
+        it 'should add the comment but not re-deliver the story' do
+          project.should_receive(:finished_and_delivered) { finished_stories }
+          git.should_receive(:contains?).with(1, {}) { true }
+          git.should_receive(:contains?).with(2, {}) { false }
+          project.should_not_receive(:deliver)
+          commited_story_notes.should_receive(:create).with(text: "We like potatoes too")
+          uncommited_story_notes.should_not_receive(:create)
+
+          deliverer.mark_as_delivered(comment: 'We like potatoes too')
+        end
       end
     end
   end
