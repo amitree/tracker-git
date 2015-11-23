@@ -47,13 +47,6 @@ describe Tracker::Git do
       end
     end
 
-    context "story marked as wip" do
-      let(:message) { "[#123456 wip] some message" }
-      it "returns false" do
-        git.contains?(story_id).should == false
-      end
-    end
-
     context "multiple stories" do
       let(:message) { "[#123456] [#1234567] some message" }
       it "matches first story" do
@@ -61,6 +54,13 @@ describe Tracker::Git do
       end
       it "matches second story" do
         git.contains?(1234567).should == true
+      end
+    end
+
+    context "story number not in brackets" do
+      let(:message) { "#123456 some message" }
+      it "returns true" do
+        git.contains?(story_id).should == true
       end
     end
   end

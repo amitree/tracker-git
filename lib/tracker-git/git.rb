@@ -5,7 +5,7 @@ module Tracker
       range  = options.fetch(:range, "");
       command = "git log #{branch} #{range}".strip
       result = `#{command}`
-      result =~ /\[##{story_id}\]/ ? true : false
+      result =~ /##{story_id}\b/ ? true : false
     end
   end
 end
