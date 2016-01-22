@@ -9,6 +9,8 @@ Gem::Specification.new do |gem|
   gem.homepage      = ""
 
   gem.add_runtime_dependency 'pivotal-tracker'
+  gem.add_runtime_dependency 'rack' # Needed by httplog
+  gem.add_runtime_dependency 'httplog'
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "guard-rspec"
   gem.add_development_dependency "rake"
