@@ -7,9 +7,6 @@ rescue LoadError
 end
 require 'optparse'
 
-require 'rack'
-require 'httplog'
-
 options = {}
 optparse = OptionParser.new do |opts|
   opts.banner = <<-USAGE
