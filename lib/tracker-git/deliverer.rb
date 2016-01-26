@@ -4,6 +4,7 @@ module Tracker
     def initialize(project, git)
       @project = project
       @git = git
+      @errors = []
     end
 
     def mark_as_delivered(options={})
@@ -14,13 +15,22 @@ module Tracker
         if git.contains?(story.id, options)
           puts " - Delivering story ##{story.id}"
           unless options[:dryrun]
-            project.deliver(story) unless story.current_state == 'delivered'
+            unless story.current_state == 'delivered'
+              result = project.deliver(story)
+              @errors += result.errors.errors.map{|message| "Failed to delivery story #{story.id}: #{message}"}
+            end
             if comment
-              story.notes.create(text: comment)
+              begin
+                story.notes.create(text: comment)
+              rescue RestClient::Exception => e
+                @errors << "Failed to create note for story #{story.id}: #{comment} (#{e.message})"
+              end
             end
           end
         end
       end
+
+      raise @errors.join("\n") unless @errors.empty?
     end
   end
 end
