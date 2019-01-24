@@ -16,13 +16,20 @@ module Tracker
           puts " - Delivering story ##{story.id}"
           unless options[:dryrun]
             unless story.current_state == 'delivered'
-              result = project.deliver(story)
-              @errors += result.errors.errors.map{|message| "Failed to delivery story #{story.id}: #{message}"}
+              begin
+                result = project.deliver(story)
+              rescue TrackerApi::Errors::ClientError,
+                  TrackerApi::Errors::ServerError,
+                  RuntimeError => e
+                @errors << "Failed to delivery story #{story.id}: #{e.message}"
+              end
             end
             if comment
               begin
-                story.notes.create(text: comment)
-              rescue RestClient::Exception => e
+                story.create_comment(text: comment)
+              rescue TrackerApi::Errors::ClientError,
+                  TrackerApi::Errors::ServerError,
+                  RuntimeError => e
                 @errors << "Failed to create note for story #{story.id}: #{comment} (#{e.message})"
               end
             end

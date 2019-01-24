@@ -1,4 +1,4 @@
-require 'pivotal-tracker'
+require 'tracker_api'
 
 module Tracker
   class Project
@@ -8,25 +8,25 @@ module Tracker
     def initialize(tracker_token)
       @tracker_token = tracker_token
 
-      PivotalTracker::Client.token = tracker_token
-      PivotalTracker::Client.use_ssl = true
+      @client = TrackerApi::Client.new(token: tracker_token)
     end
 
     def finished
-      _projects.map{|project| project.stories.all(state: "finished", story_type: ['bug', 'feature'])}.flatten
+      _projects.map { |project| project.stories(filter: 'state:finished type:bug,feature') }.flatten
     end
 
     def finished_and_delivered
-      _projects.map{|project| project.stories.all(state: ["finished","delivered"], story_type: ['bug', 'feature'])}.flatten
+      _projects.map { |project| project.stories(filter: 'state:finished,delivered type:bug,feature') }.flatten
     end
 
     def deliver(story)
-      story.update(current_state: "delivered")
+      story.current_state = 'delivered'
+      story.save
     end
 
     private
     def _projects
-      @projects ||= PivotalTracker::Project.all
+      @projects ||= @client.projects
     end
   end
 end

@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Tracker integration.}
   gem.homepage      = ""
 
-  gem.add_runtime_dependency 'pivotal-tracker'
+  gem.add_runtime_dependency 'tracker_api'
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "guard-rspec"
   gem.add_development_dependency "rake"
